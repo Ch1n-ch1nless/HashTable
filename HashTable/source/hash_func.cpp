@@ -1,32 +1,35 @@
 #include "hash_func.h"
 
-uint32_t HashCalculate1(void* key)
+uint32_t HashReturnConst(const char* key, size_t len)
 {
     assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
+    assert((len != 0)       && "Len is invalid!!!\n");
 
     return 0;
 }
 
-uint32_t HashCalculate2(void* key)
+uint32_t HashReturnFirstASCIICode(const char* key, size_t len)
 {
     assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
+    assert((len != 0)       && "Len is invalid!!!\n");
 
-    return *((char*)key);
+    return *(key);
 }
 
-uint32_t HashCalculate3(void* key)
+uint32_t HashReturnStrlen(const char* key, size_t len)
 {
     assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
+    assert((len != 0)       && "Len is invalid!!!\n");
 
-    return strlen((char*)key);
+    return len;
 }
 
-uint32_t HashCalculate4(void* key)
+uint32_t HashReturnSumCodes(const char* key, size_t len)
 {
     assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
+    assert((len != 0)       && "Len is invalid!!!\n");
 
     uint32_t control_sum = 0;
-    int     len          = strlen((char*)key);
 
     for (int i = 0; i < len; i++)
     {
@@ -36,45 +39,59 @@ uint32_t HashCalculate4(void* key)
     return control_sum;
 }
 
-uint32_t HashCalculate5(void* key)
+inline static uint32_t RORCalculate(uint32_t hash)
+{
+    return hash >> 1 | hash << 31;
+}
+
+uint32_t HashRorFunction(const char* key, size_t len)
 {
     assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
+    assert((len != 0)       && "Len is invalid!!!\n");
 
     uint32_t hash   = 0;
-    int      len    = strlen((char*)key);
 
     for (int i = 0; i < len; i++)
     {
         //Make cyclic shift right
-        hash = (hash >> 1) ^ (hash & 1) << 31;
-        hash ^= *((char*)key + i);
+        hash = RORCalculate(hash);
+        hash ^= key[i];
     }
 
     return hash;
 }
 
-uint32_t HashCalculate6(void* key)
+inline static uint32_t ROLCalculate(uint32_t hash)
+{
+    return hash << 1 | hash >> 31;
+}
+
+uint32_t HashRolFunction(const char* key, size_t len)
 {
     assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
+    assert((len != 0)       && "Len is invalid!!!\n");
 
     uint32_t hash   = 0;
-    int      len    = strlen((char*)key);
 
     for (int i = 0; i < len; i++)
     {
         //Make cyclic shift left
-        hash = (hash << 1) ^ (hash & 0x80000000) >> 31;
-        hash ^= *((char*)key + i);
+        hash = ROLCalculate(hash);
+        hash ^= key[i];
     }
 
     return hash;
 }
 
-uint32_t HashCalculate7(void* key)
+uint32_t HashCrc32(const char* key, size_t len)
 {
     assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
+    assert((len != 0)       && "Len is invalid!!!\n");
 
-    //...
+    uint_least32_t crc = 0xFFFFFFFF;
+    while (len--)
+        crc = (crc >> 8) ^ Crc32Table[(crc ^ *key++) & 0xFF];
+    return crc ^ 0xFFFFFFFF;
 
     return 0;
 }
