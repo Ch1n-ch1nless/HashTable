@@ -1,28 +1,41 @@
 #include "hash_table.h"
 
-HashTable* HashTableCtor(uint32_t (*HashCalculate)(void* key), size_t number_of_lists)
+//----------------------------------------------
+
+HashTableErrors HashTableCtor(HashTable* hash_table, uint32_t (*HashCalculate)(const char* key), size_t number_of_lists)
 {
     assert((HashCalculate != nullptr) && "Pointer to \'HashCalculate\' is NULL!!!\n");
+    assert((hash_table != nullptr)    && "Pointer to \'hash_table\' is NULL!!!\n");
 
-    HashTable* new_hash_table = (HashTable*) calloc(1, sizeof(HashTable));
-    assert((new_hash_table != nullptr) && "Program can not allocate memory!!!\n");
+    error_t error = HASH_ERR_NO;
 
-    new_hash_table->size = number_of_lists;
+    hash_table->size = number_of_lists;
 
-    new_hash_table->data = (List*) calloc(number_of_lists, sizeof(List));
-    assert((new_hash_table->data != nullptr) && "Program can not allocate memory!!!\n");
+    hash_table->data = (List*) calloc(number_of_lists, sizeof(List));
+    if (hash_table->data == nullptr)
+    {
+        return HASH_ERR_MEM_ALLOC;
+    }
 
     for (size_t i = 0; i < number_of_lists; i++)
     {
-        ListCtor(new_hash_table->data + i, 1024); //!
+        error  = ListCtor(hash_table->data + i, START_CAPACITY);
+        if (error != LIST_ERR_NO)
+        {
+            ListPrintErrors(error);
+            HashTableDtor(hash_table);
+            return HASH_ERR_LIST_INVALID;
+        }
     }
 
-    new_hash_table->hash_func = HashCalculate;
+    hash_table->hash_func = HashCalculate;
 
-    return new_hash_table;
+    return HASH_ERR_NO;
 }
 
-void HashTableDtor(HashTable* const hash_table)
+//----------------------------------------------
+
+HashTableErrors HashTableDtor(HashTable* const hash_table)
 {
     assert((hash_table != nullptr) && "Pointer to \'hash_table\' is NULL!!!\n");
 
@@ -37,25 +50,114 @@ void HashTableDtor(HashTable* const hash_table)
     hash_table->size        = 0;
     hash_table->hash_func   = nullptr;
 
-    free(hash_table);
+    return HASH_ERR_NO;
 }
 
-void HashTableInsert(HashTable* const hash_table, void* const key)
+//----------------------------------------------
+
+int HashTableInsert(HashTable* const hash_table, const char* key, error_t* error)
 {
     assert((hash_table != nullptr) && "Pointer to \'hash_table\' is NULL!!!\n");
     assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
+    assert((error != nullptr) && "Pointer to \'error\' is NULL!!!\n");
 
-    uint32_t hash = hash_table->hash_func(key);
+    uint32_t hash = (hash_table->hash_func(key)) % hash_table->size;
 
-    ListPushBack(&(hash_table->data[hash]), key);
+    *error = LIST_ERR_NO;
+    int index = ListPushBack(&(hash_table->data[hash]), key, error);
+
+    if (*error != LIST_ERR_NO)
+    {
+        ListPrintErrors(*error);
+        *error = HASH_ERR_LIST_INVALID;
+        return LIST_INVALID_INDEX;
+    }
+
+    return index;
 }
 
-int HashTableSearch(const HashTable* const hash_table, void* const key)
+//----------------------------------------------
+
+int HashTableSearch(const HashTable* const hash_table, const char* key, error_t* error)
 {
     assert((hash_table != nullptr) && "Pointer to \'hash_table\' is NULL!!!\n");
     assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
+    assert((error != nullptr) && "Pointer to \'error\' is NULL!!!\n");
 
-    uint32_t hash = hash_table->hash_func(key);
+    uint32_t hash = (hash_table->hash_func(key)) % hash_table->size;
 
-    return ListSearch(hash_table->data + hash, key);
+    *error = LIST_ERR_NO;
+    int is_found = ListSearch(hash_table->data + hash, key, error);
+
+    if (*error != LIST_ERR_NO)
+    {
+        ListPrintErrors(*error);
+        *error = HASH_ERR_LIST_INVALID;
+        return 0;
+    }
+
+    return is_found;
 }
+
+//----------------------------------------------
+
+error_t HashTableVerify(HashTable* const hash_table)
+{
+    assert((hash_table != nullptr) && "Pointer to \'hash_table\' is NULL!!!\n");
+
+    error_t error = HASH_ERR_NO;
+
+    if (hash_table->size == 0)              error |= HASH_ERR_SIZE_IS_NULL;
+    if (hash_table->hash_func == nullptr)   error |= HASH_ERR_HASH_FUNC_IS_NULL;
+    if (hash_table->data == nullptr)        error |= HASH_ERR_DATA_IS_NULL;
+
+    if (hash_table->data != nullptr)
+    {
+        error_t list_error = LIST_ERR_NO;
+
+        for (size_t i = 0; i < hash_table->size; i++)
+        {
+            error_t list_error = LIST_ERR_NO;
+            list_error = ListVerify(&(hash_table->data[i]));
+            if (list_error == LIST_ERR_NO)
+            {
+                ListPrintErrors(list_error);
+                return error | HASH_ERR_LIST_INVALID;
+            }
+        }
+    }
+
+    return error;
+}
+
+//----------------------------------------------
+
+void HashTableErrorsPrint(error_t error)
+{
+    if (error & HASH_ERR_DATA_IS_NULL)
+    {
+        fprintf(stderr, "ERROR! Hash table data is NULL!!!\n");
+    }
+    if (error & HASH_ERR_DATA_IS_NULL)
+    {
+        fprintf(stderr, "ERROR! Hash table size is NULL!!!\n");
+    }
+    if (error & HASH_ERR_HASH_FUNC_IS_NULL)
+    {
+        fprintf(stderr, "ERROR! Hash function is NULL!!!\n");
+    }
+    if (error & HASH_ERR_LIST_INVALID)
+    {
+        fprintf(stderr, "ERROR! List in Hash table is invalid!!!\n");
+    }
+    if (error & HASH_ERR_TEXT_INVALID)
+    {
+        fprintf(stderr, "ERROR! Text in Hash table is invalid!!!\n");
+    }
+    if (error & HASH_ERR_MEM_ALLOC)
+    {
+        fprintf(stderr, "ERROR! Program can not allocate memory!!!\n");
+    }
+}
+
+//----------------------------------------------

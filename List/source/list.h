@@ -46,9 +46,9 @@ struct List
 error_t ListCtor(List* const list, size_t capacity);
 error_t ListDtor(List* const list);
 
-int     ListInsert(List* const list, void* key, size_t index, error_t* error);
-int     ListPushBack(List* const list, void* key, error_t* error);
-int     ListSearch(List* const list, void* key, error_t* error);
+int     ListInsert(List* const list, list_elem_t key, size_t index, error_t* error);
+int     ListPushBack(List* const list, list_elem_t key, error_t* error);
+int     ListSearch(List* const list, list_elem_t key, error_t* error);
 
 error_t ListVerify(List* const list);
 void    ListPrintErrors(error_t error);

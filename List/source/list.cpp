@@ -191,10 +191,11 @@ static error_t ListResizeUp(List* const list)
 #define HEAD list->next[0]
 #define TAIL list->prev[0]
 
-int ListInsert(List* const list, list_elem_t* key, size_t index, error_t* error)
+int ListInsert(List* const list, list_elem_t key, size_t index, error_t* error)
 {
     assert((list != nullptr) && "Pointer to \'list\' is NULL!!!\n");
     assert((key  != nullptr) && "Pointer to \'key\'  is NULL!!!\n");
+    assert((error != nullptr) && "Pointer to \'error\' is NULL!!!\n");
 
     *error = ListVerify(list);
     if (*error != LIST_ERR_NO)
@@ -235,20 +236,24 @@ int ListInsert(List* const list, list_elem_t* key, size_t index, error_t* error)
 
 //----------------------------------------------
 
-int ListPushBack(List* const list, void* key, error_t* error)
+int ListPushBack(List* const list, list_elem_t key, error_t* error)
 {
     return ListInsert(list, key, TAIL, error);
 }
 
 //----------------------------------------------
 
-int ListSearch(List* const list, void* key)
+int ListSearch(List* const list, list_elem_t key, error_t* error)
 {
+    assert((list != nullptr) && "Pointer to \'list\' is NULL!!!\n");
+    assert((key  != nullptr) && "Pointer to \'key\'  is NULL!!!\n");
+    assert((error != nullptr) && "Pointer to \'error\' is NULL!!!\n");
+
     int is_found = 0;
 
     for (int i = HEAD; i != TAIL; i = list->next[i])
     {
-        if (strcmp(list->data[i], (char*)key) == 0)
+        if (strcmp(list->data[i], key) == 0)
         {
             is_found = 1;
             break;
@@ -257,5 +262,8 @@ int ListSearch(List* const list, void* key)
 
     return is_found;
 }
+
+#undef HEAD
+#undef TAIL
 
 //----------------------------------------------
