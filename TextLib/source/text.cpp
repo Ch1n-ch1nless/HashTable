@@ -160,33 +160,35 @@ static TextErrors WordsArrayCtor(Text* text)
 
     text->words_array_size = number_of_words;
 
-    text->words_array = (Word*) calloc(number_of_words, sizeof(Word));
+    //! FIX THIS CRINGE!
+    text->words_array = (Word*) calloc(2 * number_of_words, sizeof(Word));
     if (text->words_array == nullptr)
     {
         return TEXT_ERR_MEM_ALLOC;
     }
 
+
     size_t word_iter = 0;
+    const char* word_beg = nullptr;
 
-    for (int iter = 0; iter < text->buffer_size; iter++)
+    for (const char* cur = text->buffer; *cur != '\0'; word_iter++)
     {
-        if (isspace(text->buffer[iter]) || ispunct(text->buffer[iter]))
+        if (isspace(*cur) || ispunct(*cur))
         {
-            iter++;
+            cur++;
         }
 
-        if (!text->buffer[iter]) break;
+        if (!*cur) break;
 
-        text->words_array[word_iter].begin = text->buffer+ iter;
-        text->words_array[word_iter].size  = iter;
-
-        while (!isspace(text->buffer[iter]) && !ispunct(text->buffer[iter]) && text->buffer[iter] != '\0')
+        text->words_array[word_iter].begin = cur;
+        word_beg = cur;
+        
+        while (*cur && !isspace(*cur) && !ispunct(*cur))
         {
-            iter++;
+            cur++;
         }
 
-        text->words_array[word_iter].size  = iter - text->words_array[word_iter].size;
-        word_iter++;
+        text->words_array[word_iter].size  = cur - word_beg;
     }
 
     return error;
@@ -204,12 +206,14 @@ TextErrors TextCtor(Text* text, const char* file_name)
     {
         return error;
     }
+    printf("LOL1\n");
 
     error = WordsArrayCtor(text);
     if (error != TEXT_ERR_NO)
     {
         return error;
     }
+    printf("LOL1\n");
 
     return error;
 }

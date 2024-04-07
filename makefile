@@ -9,8 +9,8 @@ CFLAGS=-Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equal
 	   -D_DEBUG -mavx2 -mfma -mavx -msse4.2
 
 
-TEXT_SRC_DIR = ./source/
-TEXT_OBJ_DIR = ./object/
+TEXT_SRC_DIR = ./TextLib/source/
+TEXT_OBJ_DIR = ./TextLib/object/
 
 TEXT_SRC = $(wildcard $(TEXT_SRC_DIR)*.cpp)
 TEXT_OBJ = $(patsubst $(TEXT_SRC_DIR)%.cpp, $(TEXT_OBJ_DIR)%.o, $(TEXT_SRC))

@@ -20,15 +20,15 @@ enum TextErrors
     TEXT_ERR_FREAD      = 1 << 4,
 };
 
-const char* const MARTIN_EDEN_FILE  = "../../Data/MartinEden.txt";
-const char* const CLEAN_FILE        = "../../Data/CleanFile.txt";
+const char* const MARTIN_EDEN_FILE  = "Data/MartinEden.txt";
+const char* const CLEAN_FILE        = "Data/CleanFile.txt";
 
 /*===================STRUCTS==================*/
 
 struct Word
 {
-    char*   begin   = nullptr;
-    size_t  size    = 0;
+    const char* begin   = nullptr;
+    size_t      size    = 0;
 };
 
 struct  Text
