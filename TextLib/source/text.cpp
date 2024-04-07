@@ -160,8 +160,7 @@ static TextErrors WordsArrayCtor(Text* text)
 
     text->words_array_size = number_of_words;
 
-    //! FIX THIS CRINGE!
-    text->words_array = (Word*) calloc(2 * number_of_words, sizeof(Word));
+    text->words_array = (Word*) calloc(number_of_words, sizeof(Word));
     if (text->words_array == nullptr)
     {
         return TEXT_ERR_MEM_ALLOC;
@@ -173,7 +172,7 @@ static TextErrors WordsArrayCtor(Text* text)
 
     for (const char* cur = text->buffer; *cur != '\0'; word_iter++)
     {
-        if (isspace(*cur) || ispunct(*cur))
+        while (isspace(*cur) || ispunct(*cur) || *cur == '\n')
         {
             cur++;
         }
@@ -183,7 +182,7 @@ static TextErrors WordsArrayCtor(Text* text)
         text->words_array[word_iter].begin = cur;
         word_beg = cur;
         
-        while (*cur && !isspace(*cur) && !ispunct(*cur))
+        while (*cur && !isspace(*cur) && !ispunct(*cur) && *cur != '\n')
         {
             cur++;
         }
@@ -206,14 +205,12 @@ TextErrors TextCtor(Text* text, const char* file_name)
     {
         return error;
     }
-    printf("LOL1\n");
 
     error = WordsArrayCtor(text);
     if (error != TEXT_ERR_NO)
     {
         return error;
     }
-    printf("LOL1\n");
 
     return error;
 }

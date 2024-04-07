@@ -17,10 +17,13 @@ TEXT_OBJ = $(patsubst $(TEXT_SRC_DIR)%.cpp, $(TEXT_OBJ_DIR)%.o, $(TEXT_SRC))
 
 all: prepare_file
 
-prepare_file: $(TEXT_OBJ)
-	@$(CC) $(TEXT_OBJ) -o hash_table.out
+prepare_file: $(TEXT_OBJ) main.o
+	@$(CC) $(TEXT_OBJ) main.o -o hash_table.out
 
 $(TEXT_OBJ_DIR)%.o : $(TEXT_SRC_DIR)%.cpp
+	@$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
+
+main.o : main.cpp
 	@$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
 
 clean:
