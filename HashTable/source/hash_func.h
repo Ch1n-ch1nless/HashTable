@@ -78,13 +78,13 @@ const uint32_t Crc32Table[256] = {
 
 /*==================FUNCTIONS=================*/
 
-uint32_t    HashReturnConst(const char* key);
-uint32_t    HashReturnFirstASCIICode(const char* key);
-uint32_t    HashReturnStrlen(const char* key);
-uint32_t    HashReturnSumCodes(const char* key);
-uint32_t    HashRorFunction(const char* key);
-uint32_t    HashRolFunction(const char* key);
-uint32_t    HashCrc32(const char* key);
+uint32_t    HashReturnConst(const char* key, size_t len);
+uint32_t    HashReturnFirstASCIICode(const char* key, size_t len);
+uint32_t    HashReturnStrlen(const char* key, size_t len);
+uint32_t    HashReturnSumCodes(const char* key, size_t len);
+uint32_t    HashRorFunction(const char* key, size_t len);
+uint32_t    HashRolFunction(const char* key, size_t len);
+uint32_t    HashCrc32(const char* key, size_t len);
 
 /*============================================*/
 

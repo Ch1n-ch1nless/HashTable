@@ -2,7 +2,7 @@
 
 //----------------------------------------------
 
-HashTableErrors HashTableCtor(HashTable* hash_table, uint32_t (*HashCalculate)(const char* key), size_t number_of_lists)
+HashTableErrors HashTableCtor(HashTable* hash_table, uint32_t (*HashCalculate)(const char* key, size_t len), size_t number_of_lists)
 {
     assert((HashCalculate != nullptr) && "Pointer to \'HashCalculate\' is NULL!!!\n");
     assert((hash_table != nullptr)    && "Pointer to \'hash_table\' is NULL!!!\n");
@@ -55,16 +55,17 @@ HashTableErrors HashTableDtor(HashTable* const hash_table)
 
 //----------------------------------------------
 
-int HashTableInsert(HashTable* const hash_table, const char* key, error_t* error)
+int HashTableInsert(HashTable* const hash_table, const char* key, size_t len, error_t* error)
 {
     assert((hash_table != nullptr) && "Pointer to \'hash_table\' is NULL!!!\n");
     assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
     assert((error != nullptr) && "Pointer to \'error\' is NULL!!!\n");
 
-    uint32_t hash = (hash_table->hash_func(key)) % hash_table->size;
+    uint32_t hash = (hash_table->hash_func(key, len)) % hash_table->size;
 
     *error = LIST_ERR_NO;
-    int index = ListPushBack(&(hash_table->data[hash]), key, error);
+    int index = LIST_INVALID_INDEX;
+    int is_found = ListSearch(&(hash_table->data[hash]), {key, len}, error);
 
     if (*error != LIST_ERR_NO)
     {
@@ -72,22 +73,32 @@ int HashTableInsert(HashTable* const hash_table, const char* key, error_t* error
         *error = HASH_ERR_LIST_INVALID;
         return LIST_INVALID_INDEX;
     }
+    if (is_found == LIST_INVALID_INDEX)
+    {
+        index = ListPushBack(&(hash_table->data[hash]), {key, len}, error);
+        if (*error != LIST_ERR_NO)
+        {
+            ListPrintErrors(*error);
+            *error = HASH_ERR_LIST_INVALID;
+            return LIST_INVALID_INDEX;
+        }
+    }
 
     return index;
 }
 
 //----------------------------------------------
 
-int HashTableSearch(const HashTable* const hash_table, const char* key, error_t* error)
+int HashTableSearch(const HashTable* const hash_table, const char* key, size_t len, error_t* error)
 {
     assert((hash_table != nullptr) && "Pointer to \'hash_table\' is NULL!!!\n");
     assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
     assert((error != nullptr) && "Pointer to \'error\' is NULL!!!\n");
 
-    uint32_t hash = (hash_table->hash_func(key)) % hash_table->size;
+    uint32_t hash = (hash_table->hash_func(key,len)) % hash_table->size;
 
     *error = LIST_ERR_NO;
-    int is_found = ListSearch(hash_table->data + hash, key, error);
+    int is_found = ListSearch(hash_table->data + hash, {key, len}, error);
 
     if (*error != LIST_ERR_NO)
     {
@@ -158,6 +169,54 @@ void HashTableErrorsPrint(error_t error)
     {
         fprintf(stderr, "ERROR! Program can not allocate memory!!!\n");
     }
+    if (error & HASH_ERR_OPEN_FILE)
+    {
+        fprintf(stderr, "ERROR! Program can not open file!\n");
+    }
+}
+
+//----------------------------------------------
+
+error_t AddTextToHashTable(HashTable* const hash_table, Text* const text)
+{
+    assert((hash_table != nullptr) && "Pointer to \'hash_table\' is NULL!!!\n");
+    assert((text != nullptr) && "Pointer to \'text\' is NULL!!!\n");
+
+    error_t error = HASH_ERR_NO;
+
+    for (size_t i = 0; i < text->words_array_size; i++)
+    {
+        HashTableInsert(hash_table, text->words_array[i].begin, text->words_array[i].size, &error);
+        if (error != HASH_ERR_NO)
+            return error;
+    }
+
+    return error;
+}
+
+//----------------------------------------------
+
+error_t PrintListSizes(HashTable* const hash_table, const char* file_name)
+{
+    assert((hash_table != nullptr) && "Pointer to \'hash_table\' is NULL!!!\n");
+
+    FILE* file_ptr = fopen(file_name, "wb");
+    if (file_name == nullptr)
+    {
+        return HASH_ERR_OPEN_FILE;
+    }
+
+    size_t sum = 0;
+
+    for (size_t i = 0; i < hash_table->size; i++)
+    {
+        fprintf(file_ptr, "%lu, %lu\n", i, hash_table->data[i].size);
+        sum += hash_table->data[i].size;
+    }
+
+    printf("SUM:= %lu\n", sum);
+
+    return HASH_ERR_NO;
 }
 
 //----------------------------------------------

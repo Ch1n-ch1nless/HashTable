@@ -6,8 +6,15 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef const char* list_elem_t;
+typedef struct
+{
+    const char* key;
+    size_t      size;
+} list_elem_t;
 typedef int error_t;
+
+#define MAX(a, b) (a < b) ? b : a
+#define MIN(a, b) (a < b) ? a : b
 
 /*==================CONSTANTS=================*/
 
@@ -22,10 +29,11 @@ enum ListErrors
     LIST_ERR_FREE_IS_INVALID    = 1 << 5,
 };
 
-const list_elem_t   POISON_VALUE       = nullptr;
+const list_elem_t   POISON_VALUE       = {nullptr, 0};
 const int           LIST_INVALID_INDEX = -666;
 
-const size_t        START_CAPACITY      = 2048;
+//! Fix the ListResizeUp to decrease this constant!!!
+const size_t        START_CAPACITY      = 16384;
 
 /*===================STRUCTS==================*/
 

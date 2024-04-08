@@ -12,19 +12,37 @@ CFLAGS=-Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equal
 TEXT_SRC_DIR = ./TextLib/source/
 TEXT_OBJ_DIR = ./TextLib/object/
 
+HASH_SRC_DIR = ./HashTable/source/
+HASH_OBJ_DIR = ./HashTable/object/
+
+LIST_SRC_DIR = ./List/source/
+LIST_OBJ_DIR = ./List/object/
+
 TEXT_SRC = $(wildcard $(TEXT_SRC_DIR)*.cpp)
 TEXT_OBJ = $(patsubst $(TEXT_SRC_DIR)%.cpp, $(TEXT_OBJ_DIR)%.o, $(TEXT_SRC))
 
+HASH_SRC = $(wildcard $(HASH_SRC_DIR)*.cpp)
+HASH_OBJ = $(patsubst $(HASH_SRC_DIR)%.cpp, $(HASH_OBJ_DIR)%.o, $(HASH_SRC))
+
+LIST_SRC = $(wildcard $(LIST_SRC_DIR)*.cpp)
+LIST_OBJ = $(patsubst $(LIST_SRC_DIR)%.cpp, $(LIST_OBJ_DIR)%.o, $(LIST_SRC))
+
 all: prepare_file
 
-prepare_file: $(TEXT_OBJ) main.o
-	@$(CC) $(TEXT_OBJ) main.o -o hash_table.out
+prepare_file: $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) main.o
+	$(CC) $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) main.o -o hash_table.out
 
 $(TEXT_OBJ_DIR)%.o : $(TEXT_SRC_DIR)%.cpp
-	@$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
+	$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
+
+$(LIST_OBJ_DIR)%.o : $(LIST_SRC_DIR)%.cpp
+	$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
+
+$(HASH_OBJ_DIR)%.o : $(HASH_SRC_DIR)%.cpp
+	$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
 
 main.o : main.cpp
-	@$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
+	$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
 
 clean:
-	@rm $(TEXT_OBJ) 
+	rm $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) main.o

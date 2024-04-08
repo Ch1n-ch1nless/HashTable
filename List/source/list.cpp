@@ -78,7 +78,7 @@ error_t ListVerify(List* const list)
 
     if (list->capacity < list->size)                    error |= LIST_ERR_SIZE_CAPACITY;
 
-    if (list->free <= 0 || list->free > list->capacity) error |= LIST_ERR_FREE_IS_INVALID;
+    if (list->free < 0 || list->free > list->capacity)  error |= LIST_ERR_FREE_IS_INVALID;
 
     if (error != LIST_ERR_NO)
     {
@@ -128,47 +128,30 @@ static error_t ListResizeUp(List* const list)
     size_t new_capacity = list->capacity * 2;
 
     //Realloc list->data to new memory area!
-    list_elem_t* new_data_ptr = (list_elem_t*) calloc(new_capacity, sizeof(list_elem_t));
-    if (new_data_ptr == nullptr)
+    list->data = (list_elem_t*) realloc(list->data, new_capacity * sizeof(list_elem_t));
+    if (list->data == nullptr)
     {
         error |= LIST_ERR_MEM_ALLOC;
-    }
-    else
-    {
-        memcpy(new_data_ptr, list->data, list->capacity);
-        free(list->data);
-        list->data = new_data_ptr;
     }
 
     //Realloc list->next to new memory area!
-    int* new_next_ptr = (int*) calloc(new_capacity, sizeof(int));
-    if (new_next_ptr == nullptr)
+    list->next = (int*) realloc(list->next, new_capacity * sizeof(int));
+    if (list->next == nullptr)
     {
         error |= LIST_ERR_MEM_ALLOC;
-    }
-    else
-    {
-        memcpy(new_next_ptr, list->next, list->capacity);
-        free(list->next);
-        list->next = new_next_ptr;
     }
 
     //Realloc list->prev to new memory area!
-    int* new_prev_ptr = (int*) calloc(new_capacity, sizeof(int));
-    if (new_prev_ptr == nullptr)
+    list->prev = (int*) realloc(list->prev, new_capacity * sizeof(int));
+    if (list->prev == nullptr)
     {
         error |= LIST_ERR_MEM_ALLOC;
-    }
-    else
-    {
-        memcpy(new_prev_ptr, list->prev, list->capacity);
-        free(list->prev);
-        list->prev = new_prev_ptr;
     }
 
     //Destroy list, if realloc was not successful
     if (error != LIST_ERR_NO)
     {
+        printf("ERROR!\n");
         ListDtor(list);
         return error;
     }
@@ -191,11 +174,11 @@ static error_t ListResizeUp(List* const list)
 #define HEAD list->next[0]
 #define TAIL list->prev[0]
 
-int ListInsert(List* const list, list_elem_t key, size_t index, error_t* error)
+int ListInsert(List* const list, list_elem_t elem, size_t index, error_t* error)
 {
-    assert((list != nullptr) && "Pointer to \'list\' is NULL!!!\n");
-    assert((key  != nullptr) && "Pointer to \'key\'  is NULL!!!\n");
-    assert((error != nullptr) && "Pointer to \'error\' is NULL!!!\n");
+    assert((list     != nullptr) && "Pointer to \'list\'     is NULL!!!\n");
+    assert((elem.key != nullptr) && "Pointer to \'elem.key\' is NULL!!!\n");
+    assert((error    != nullptr) && "Pointer to \'error\'    is NULL!!!\n");
 
     *error = ListVerify(list);
     if (*error != LIST_ERR_NO)
@@ -223,7 +206,7 @@ int ListInsert(List* const list, list_elem_t key, size_t index, error_t* error)
     list->prev[list->next[free_index]] = free_index;
 
 
-    list->data[free_index] = (list_elem_t)key;
+    list->data[free_index] = elem;
     list->next[index]      = free_index;
     list->prev[free_index] = index;
 
@@ -243,24 +226,24 @@ int ListPushBack(List* const list, list_elem_t key, error_t* error)
 
 //----------------------------------------------
 
-int ListSearch(List* const list, list_elem_t key, error_t* error)
+int ListSearch(List* const list, list_elem_t elem, error_t* error)
 {
-    assert((list != nullptr) && "Pointer to \'list\' is NULL!!!\n");
-    assert((key  != nullptr) && "Pointer to \'key\'  is NULL!!!\n");
-    assert((error != nullptr) && "Pointer to \'error\' is NULL!!!\n");
+    assert((list     != nullptr) && "Pointer to \'list\'     is NULL!!!\n");
+    assert((elem.key != nullptr) && "Pointer to \'elem.key\' is NULL!!!\n");
+    assert((error    != nullptr) && "Pointer to \'error\'    is NULL!!!\n");
 
-    int is_found = 0;
+    int index = LIST_INVALID_INDEX;
 
-    for (int i = HEAD; i != TAIL; i = list->next[i])
+    for (int i = HEAD; i != 0; i = list->next[i])
     {
-        if (strcmp(list->data[i], key) == 0)
+        if (strncmp(list->data[i].key, elem.key, MAX(list->data[i].size, elem.size)) == 0)
         {
-            is_found = 1;
+            index = i;
             break;
         }
     }
 
-    return is_found;
+    return index;
 }
 
 #undef HEAD
