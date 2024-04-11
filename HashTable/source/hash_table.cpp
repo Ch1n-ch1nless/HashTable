@@ -214,8 +214,6 @@ error_t PrintListSizes(HashTable* const hash_table, const char* file_name)
         sum += hash_table->data[i].size;
     }
 
-    printf("SUM:= %lu\n", sum);
-
     return HASH_ERR_NO;
 }
 
