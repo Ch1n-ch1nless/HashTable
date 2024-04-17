@@ -18,6 +18,9 @@ HASH_OBJ_DIR = ./HashTable/object/
 LIST_SRC_DIR = ./List/source/
 LIST_OBJ_DIR = ./List/object/
 
+TEST_SRC_DIR = ./Tests/source/
+TEST_OBJ_DIR = ./Tests/object/
+
 TEXT_SRC = $(wildcard $(TEXT_SRC_DIR)*.cpp)
 TEXT_OBJ = $(patsubst $(TEXT_SRC_DIR)%.cpp, $(TEXT_OBJ_DIR)%.o, $(TEXT_SRC))
 
@@ -27,10 +30,13 @@ HASH_OBJ = $(patsubst $(HASH_SRC_DIR)%.cpp, $(HASH_OBJ_DIR)%.o, $(HASH_SRC))
 LIST_SRC = $(wildcard $(LIST_SRC_DIR)*.cpp)
 LIST_OBJ = $(patsubst $(LIST_SRC_DIR)%.cpp, $(LIST_OBJ_DIR)%.o, $(LIST_SRC))
 
+TEST_SRC = $(wildcard $(TEST_SRC_DIR)*.cpp)
+TEST_OBJ = $(patsubst $(TEST_SRC_DIR)%.cpp, $(TEST_OBJ_DIR)%.o, $(TEST_SRC))
+
 all: prepare_file
 
-prepare_file: $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) main.o
-	$(CC) $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) main.o -o hash_table.out
+prepare_file: $(TEST_OBJ) $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ)
+	$(CC) $(TEST_OBJ) $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) -o hash_table.out
 
 $(TEXT_OBJ_DIR)%.o : $(TEXT_SRC_DIR)%.cpp
 	$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
@@ -41,8 +47,8 @@ $(LIST_OBJ_DIR)%.o : $(LIST_SRC_DIR)%.cpp
 $(HASH_OBJ_DIR)%.o : $(HASH_SRC_DIR)%.cpp
 	$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
 
-main.o : main.cpp
+$(TEST_OBJ_DIR)%.o : $(TEST_SRC_DIR)%.cpp
 	$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
 
 clean:
-	rm $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) main.o
+	rm $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) $(TEST_OBJ)

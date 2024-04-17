@@ -2,3 +2,5 @@
 .vscode/*.json
 *.py
 *.sh
+*.o
+*.out
