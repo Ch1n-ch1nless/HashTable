@@ -11,7 +11,6 @@ TestConfig ArgsParse(int argc, char* argv[])
 
     for (int i = 0; i < argc; i++)
     {
-        printf("%s\n", argv[i]);
         if (!strcmp(argv[i], FLAG_TEST_HASH_FUNCTIONS))
         {   
             config.test_mode = TEST_HASH_FUNC;

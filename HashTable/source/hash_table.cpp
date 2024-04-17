@@ -65,7 +65,7 @@ int HashTableInsert(HashTable* const hash_table, const char* key, size_t len, er
 
     *error = LIST_ERR_NO;
     int index = LIST_INVALID_INDEX;
-    int is_found = ListSearch(&(hash_table->data[hash]), {key, len}, error);
+    int is_found = ListSearch(&(hash_table->data[hash]), key, len, error);
 
     if (*error != LIST_ERR_NO)
     {
@@ -75,7 +75,7 @@ int HashTableInsert(HashTable* const hash_table, const char* key, size_t len, er
     }
     if (is_found == LIST_INVALID_INDEX)
     {
-        index = ListPushBack(&(hash_table->data[hash]), {key, len}, error);
+        index = ListPushBack(&(hash_table->data[hash]), key, len, error);
         if (*error != LIST_ERR_NO)
         {
             ListPrintErrors(*error);
@@ -98,7 +98,7 @@ int HashTableSearch(const HashTable* const hash_table, const char* key, size_t l
     uint32_t hash = (hash_table->hash_func(key,len)) % hash_table->size;
 
     *error = LIST_ERR_NO;
-    int is_found = ListSearch(hash_table->data + hash, {key, len}, error);
+    int is_found = ListSearch(hash_table->data + hash, key, len, error);
 
     if (*error != LIST_ERR_NO)
     {

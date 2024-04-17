@@ -8,9 +8,10 @@
 
 typedef struct
 {
-    const char* key;
-    size_t      size;
+    char    key[32];
+    size_t  size;
 } list_elem_t;
+
 typedef int error_t;
 
 #define MAX(a, b) (a < b) ? b : a
@@ -29,7 +30,7 @@ enum ListErrors
     LIST_ERR_FREE_IS_INVALID    = 1 << 5,
 };
 
-const list_elem_t   POISON_VALUE       = {nullptr, 0};
+const list_elem_t   POISON_VALUE       = {{}, 0};
 const int           LIST_INVALID_INDEX = -666;
 
 //! Fix the ListResizeUp to decrease this constant!!!
@@ -54,9 +55,9 @@ struct List
 error_t ListCtor(List* const list, size_t capacity);
 error_t ListDtor(List* const list);
 
-int     ListInsert(List* const list, list_elem_t key, size_t index, error_t* error);
-int     ListPushBack(List* const list, list_elem_t key, error_t* error);
-int     ListSearch(List* const list, list_elem_t key, error_t* error);
+int     ListInsert(List* const list, const char* key, size_t len, size_t index, error_t* error);
+int     ListPushBack(List* const list, const char* key, size_t len, error_t* error);
+int     ListSearch(List* const list, const char* key, size_t len, error_t* error);
 
 error_t ListVerify(List* const list);
 void    ListPrintErrors(error_t error);

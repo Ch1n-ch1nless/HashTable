@@ -19,7 +19,7 @@ enum HashTableErrors
     HASH_ERR_OPEN_FILE          = 1 << 6,
 };
 
-const size_t    HASH_TABLE_SIZE = 1021;
+const size_t    HASH_TABLE_SIZE = 1531;
 
 /*===================STRUCTS==================*/
 

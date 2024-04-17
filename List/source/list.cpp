@@ -174,11 +174,11 @@ static error_t ListResizeUp(List* const list)
 #define HEAD list->next[0]
 #define TAIL list->prev[0]
 
-int ListInsert(List* const list, list_elem_t elem, size_t index, error_t* error)
+int ListInsert(List* const list, const char* key, size_t len, size_t index, error_t* error)
 {
-    assert((list     != nullptr) && "Pointer to \'list\'     is NULL!!!\n");
-    assert((elem.key != nullptr) && "Pointer to \'elem.key\' is NULL!!!\n");
-    assert((error    != nullptr) && "Pointer to \'error\'    is NULL!!!\n");
+    assert((list    != nullptr) && "Pointer to \'list\' is NULL!!!\n");
+    assert((key     != nullptr) && "Pointer to \'key\' is NULL!!!\n");
+    assert((error   != nullptr) && "Pointer to \'error\' is NULL!!!\n");
 
     *error = ListVerify(list);
     if (*error != LIST_ERR_NO)
@@ -206,7 +206,9 @@ int ListInsert(List* const list, list_elem_t elem, size_t index, error_t* error)
     list->prev[list->next[free_index]] = free_index;
 
 
-    list->data[free_index] = elem;
+    strncpy(list->data[free_index].key, key, len);
+    list->data[free_index].size = len;
+
     list->next[index]      = free_index;
     list->prev[free_index] = index;
 
@@ -219,24 +221,24 @@ int ListInsert(List* const list, list_elem_t elem, size_t index, error_t* error)
 
 //----------------------------------------------
 
-int ListPushBack(List* const list, list_elem_t key, error_t* error)
+int ListPushBack(List* const list, const char* key, size_t len, error_t* error)
 {
-    return ListInsert(list, key, TAIL, error);
+    return ListInsert(list, key, len, TAIL, error);
 }
 
 //----------------------------------------------
 
-int ListSearch(List* const list, list_elem_t elem, error_t* error)
+int ListSearch(List* const list,const char* key, size_t len, error_t* error)
 {
-    assert((list     != nullptr) && "Pointer to \'list\'     is NULL!!!\n");
-    assert((elem.key != nullptr) && "Pointer to \'elem.key\' is NULL!!!\n");
-    assert((error    != nullptr) && "Pointer to \'error\'    is NULL!!!\n");
+    assert((list    != nullptr) && "Pointer to \'list\'     is NULL!!!\n");
+    assert((key     != nullptr) && "Pointer to \'key\'      is NULL!!!\n");
+    assert((error   != nullptr) && "Pointer to \'error\'    is NULL!!!\n");
 
     int index = LIST_INVALID_INDEX;
 
     for (int i = HEAD; i != 0; i = list->next[i])
     {
-        if (strncmp(list->data[i].key, elem.key, MAX(list->data[i].size, elem.size)) == 0)
+        if (strncmp(list->data[i].key, key, MAX(list->data[i].size, len)) == 0)
         {
             index = i;
             break;
