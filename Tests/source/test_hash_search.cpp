@@ -30,7 +30,7 @@ void TestHashSearch(uint32_t (*HashFunction)(const char* key, size_t len))
     clock_t             clock_time_begin    = clock();
     unsigned long long  time_begin          = __rdtsc();
 
-    for (int j = 0; j < 1000; j++)
+    for (int j = 0; j < 3000; j++)
     {
         for (size_t i = 0; i < text.words_array_size; i++)
         {

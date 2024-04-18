@@ -85,6 +85,7 @@ uint32_t    HashReturnSumCodes(const char* key, size_t len);
 uint32_t    HashRorFunction(const char* key, size_t len);
 uint32_t    HashRolFunction(const char* key, size_t len);
 uint32_t    HashCrc32(const char* key, size_t len);
+uint32_t    HashFastCrc32(const char* key, size_t len);
 
 /*============================================*/
 

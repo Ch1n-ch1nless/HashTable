@@ -91,8 +91,35 @@ uint32_t HashCrc32(const char* key, size_t len)
     uint_least32_t crc = 0xFFFFFFFF;
     while (len--)
         crc = (crc >> 8) ^ Crc32Table[(crc ^ *key++) & 0xFF];
+    
     return crc ^ 0xFFFFFFFF;
+}
 
-    return 0;
+uint32_t HashFastCrc32(const char* key, size_t len)
+{
+    uint32_t crc = 0xFFFFFFFF;
+
+    asm (
+        ".intel_syntax noprefix\n\t"
+        "movzx  edx, BYTE PTR [%1]\n\t"
+        "test    dl, dl\n\t"
+        "je      .end_of_cycle\n\t"
+        "add     %1, 1\n\t"
+        "mov     %0, -1\n\t"
+        ".next_char:\n\t"
+        "add     %1, 1\n\t"
+        "crc32   %0, dl\n\t"
+        "movzx   edx, BYTE PTR [%1-1]\n\t"
+        "test    dl, dl\n\t"
+        "jne     .next_char\n\t"
+        ".end_of_cycle:\n\t"
+        "not     %0\n\t"
+        ".att_syntax\n\t"
+        : "=r"(crc)
+        : "r"(key)
+        : "edx"
+    );
+
+    return crc;
 }
 
