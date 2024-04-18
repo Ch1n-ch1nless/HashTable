@@ -6,7 +6,7 @@ void TestHashSearch(uint32_t (*HashFunction)(const char* key, size_t len))
 {
     Text text = {};
 
-    TextErrors text_error = TextCtor(&text, CLEAN_FILE);
+    TextErrors text_error = TextCtor(&text, MARTIN_EDEN_FILE);
     TextVerify(&text, text_error);
 
     HashTable hash_table = {};
@@ -30,9 +30,9 @@ void TestHashSearch(uint32_t (*HashFunction)(const char* key, size_t len))
     clock_t             clock_time_begin    = clock();
     unsigned long long  time_begin          = __rdtsc();
 
-    for (size_t i = 0; i < text.words_array_size; i++)
+    for (int j = 0; j < 1000; j++)
     {
-        for (int j = 0; j < 10; j++)
+        for (size_t i = 0; i < text.words_array_size; i++)
         {
             HashTableSearch(&hash_table, text.words_array[i].begin, text.words_array[i].size, &hash_error);
             if (hash_error != HASH_ERR_NO)

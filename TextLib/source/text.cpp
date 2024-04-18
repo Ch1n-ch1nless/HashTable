@@ -195,6 +195,44 @@ static TextErrors WordsArrayCtor(Text* text)
 
 /*============================================*/
 
+static TextErrors CreateNewBuffer(Text* text, const char* file_name)
+{
+    assert((text        != nullptr) && "Pointer to \'text\'      is NULL!!!\n");
+    assert((file_name   != nullptr) && "Pointer to \'file_name\' is NULL!!!\n");
+
+    TextErrors error = TEXT_ERR_NO;
+
+    char* new_buffer = (char*) calloc(text->words_array_size * 32, sizeof(char));
+    if (new_buffer == nullptr)
+    {
+        return TEXT_ERR_MEM_ALLOC;
+    }
+
+    char* temp_ptr = new_buffer;
+
+    for (size_t i = 0; i < text->words_array_size; i++)
+    {
+        strncpy(temp_ptr, text->words_array[i].begin, text->words_array[i].size);
+        text->words_array[i].begin = temp_ptr;
+        temp_ptr = temp_ptr + 32;
+    }
+
+    FILE* in_file = fopen(file_name, "wb");
+    if (in_file == nullptr)
+    {
+        return TEXT_ERR_FILE_OPEN;
+    }
+
+    fwrite(new_buffer, sizeof(char), 32 * text->words_array_size, in_file);
+
+    free(text->buffer);
+
+    text->buffer        = new_buffer;
+    text->buffer_size   = 32 * text->words_array_size;
+
+    return error;
+}
+
 TextErrors TextCtor(Text* text, const char* file_name)
 {
     assert((text        != nullptr) && "Pointer to \'text\'      is NULL!!!\n");
@@ -207,6 +245,12 @@ TextErrors TextCtor(Text* text, const char* file_name)
     }
 
     error = WordsArrayCtor(text);
+    if (error != TEXT_ERR_NO)
+    {
+        return error;
+    }
+
+    error = CreateNewBuffer(text, CLEAN_FILE);
     if (error != TEXT_ERR_NO)
     {
         return error;

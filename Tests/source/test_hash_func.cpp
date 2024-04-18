@@ -6,7 +6,7 @@ void TestHashFunction(uint32_t (*HashFunction)(const char* key, size_t len), con
 
     Text text = {};
 
-    TextErrors text_error = TextCtor(&text, CLEAN_FILE);
+    TextErrors text_error = TextCtor(&text, MARTIN_EDEN_FILE);
     TextVerify(&text, text_error);
 
     HashTable hash_table = {};

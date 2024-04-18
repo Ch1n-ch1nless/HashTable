@@ -1,4 +1,5 @@
 #include "list.h"
+#include <immintrin.h>
 
 //----------------------------------------------
 
@@ -228,6 +229,23 @@ int ListPushBack(List* const list, const char* key, size_t len, error_t* error)
 
 //----------------------------------------------
 
+static int my_strcmp(const char* string1, size_t len1, const char* string2, size_t len2)
+{
+    if (len1 != len2)
+    {
+        return 0;
+    }
+
+    __m256i reg1 = _mm256_loadu_si256((__m256i*)string1);
+    __m256i reg2 = _mm256_loadu_si256((__m256i*)string2);
+    
+    __m256i cmp = _mm256_cmpeq_epi8(reg1, reg2);
+
+    unsigned int mask = (unsigned int)_mm256_movemask_epi8(cmp);
+
+    return (mask == (unsigned int)-1);
+}
+
 int ListSearch(List* const list,const char* key, size_t len, error_t* error)
 {
     assert((list    != nullptr) && "Pointer to \'list\'     is NULL!!!\n");
@@ -238,7 +256,11 @@ int ListSearch(List* const list,const char* key, size_t len, error_t* error)
 
     for (int i = HEAD; i != 0; i = list->next[i])
     {
+        #ifndef FAST_STRCMP
         if (strncmp(list->data[i].key, key, MAX(list->data[i].size, len)) == 0)
+        #else
+        if (my_strcmp(list->data[i].key, list->data[i].size, key, len))
+        #endif
         {
             index = i;
             break;

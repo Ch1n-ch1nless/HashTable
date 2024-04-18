@@ -6,7 +6,7 @@ CFLAGS=-Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equal
 	   -Wformat=2 -Wignored-qualifiers -Wlogical-op -Wno-missing-field-initializers -Wnon-virtual-dtor\
 	   -Woverloaded-virtual -Wpointer-arith -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing\
 	   -Wstrict-null-sentinel -Wtype-limits -Wwrite-strings -Werror=vla\
-	   -D_DEBUG -mavx2 -mfma -mavx -msse4.2
+	   -D_DEBUG -mavx2 -mfma -mavx -msse4.2 -DNDEBUG -DFAST_STRCMP
 
 
 TEXT_SRC_DIR = ./TextLib/source/
