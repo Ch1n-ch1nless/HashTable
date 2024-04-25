@@ -33,13 +33,17 @@ void TestHashSearch(uint32_t (*HashFunction)(const char* key, size_t len))
     for (int j = 0; j < 3000; j++)
     {
         for (size_t i = 0; i < text.words_array_size; i++)
-        {
+        { 
+            #ifndef FAST_HASH_SEARCH
             HashTableSearch(&hash_table, text.words_array[i].begin, text.words_array[i].size, &hash_error);
             if (hash_error != HASH_ERR_NO)
             {
                 hash_error |= HashTableVerify(&hash_table);
                 HashTableErrorsPrint(hash_error);
             }
+            #else
+            FastHashTableSearch(&hash_table, text.words_array[i].begin, text.words_array[i].size);
+            #endif
         }
     }
 

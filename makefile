@@ -35,8 +35,8 @@ TEST_OBJ = $(patsubst $(TEST_SRC_DIR)%.cpp, $(TEST_OBJ_DIR)%.o, $(TEST_SRC))
 
 all: prepare_file
 
-prepare_file: $(TEST_OBJ) $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ)
-	$(CC) $(TEST_OBJ) $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) -o hash_table.out
+prepare_file: $(TEST_OBJ) $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) HashTable/object/hash_search.o HashTable/object/fast_hash_crc32.o
+	$(CC) $(TEST_OBJ) $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) HashTable/object/hash_search.o HashTable/object/fast_hash_crc32.o -o hash_table.out
 
 $(TEXT_OBJ_DIR)%.o : $(TEXT_SRC_DIR)%.cpp
 	$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
@@ -49,6 +49,12 @@ $(HASH_OBJ_DIR)%.o : $(HASH_SRC_DIR)%.cpp
 
 $(TEST_OBJ_DIR)%.o : $(TEST_SRC_DIR)%.cpp
 	$(CC) $(CFLAGS) $(OPT_LEVEL) -c $< -o $@
+
+HashTable/object/hash_search.o: HashTable/source/hash_search.s
+	nasm -g -f elf64 HashTable/source/hash_search.s -o HashTable/object/hash_search.o
+
+HashTable/object/fast_hash_crc32.o: HashTable/source/fast_hash_crc32.s
+	nasm -g -f elf64 HashTable/source/fast_hash_crc32.s -o HashTable/object/fast_hash_crc32.o
 
 clean:
 	rm $(TEXT_OBJ) $(LIST_OBJ) $(HASH_OBJ) $(TEST_OBJ)

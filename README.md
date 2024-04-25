@@ -85,19 +85,23 @@ $$h: U \rightarrow {0, 1, \ldots, m-1}$$
 
 ### Хеш-функция возвращает константу.
 
+<br>
+<details>
+<summary>HashReturnConst</summary>
+
 ``` C
 uint32_t HashReturnConst(const char* key, size_t len)
 {
-    assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
-    assert((len != 0)       && "Len is invalid!!!\n");
-
     return 0;
 }
 ```
 
+</details>
+<br>
 Данная хеш-функция, всегда возвращает 0, и будет заполнена лишь 1 ячейка, это влияет на время работы, оно увеличится.
 
-График (в увеличенном масштабе):
+График:
+
 ![](Images/const_hash.png)
 
 Среднее квадратичное отклонение $\sigma = 313.28$. Проблема в хешировании очевидна, заполняется только 1 ячейка.
@@ -107,14 +111,12 @@ uint32_t HashReturnConst(const char* key, size_t len)
 ``` C
 uint32_t HashReturnFirstASCIICode(const char* key, size_t len)
 {
-    assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
-    assert((len != 0)       && "Len is invalid!!!\n");
-
     return key[0];
 }
 ```
 
-Диаграмма во всем масштабе:
+График:
+
 ![](Images/first_ascii_code_hash.png)
 
 Среднее квадратичное отклонение $\sigma = 68.24$. Хеширование получается неравномерное, так как первый ASCII код слова - это латинская буква. А их коды лежат в диапазоне от 65 до 122. Остальные ячейки не заполняются.
@@ -124,12 +126,10 @@ uint32_t HashReturnFirstASCIICode(const char* key, size_t len)
 ``` C
 uint32_t HashReturnStrlen(const char* key, size_t len)
 {
-    assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
-    assert((len != 0)       && "Len is invalid!!!\n");
-
     return len;
 }
 ```
+График:
 
 ![](Images/strlen_hash.png)
 
@@ -140,9 +140,6 @@ uint32_t HashReturnStrlen(const char* key, size_t len)
 ``` C
 uint32_t HashReturnSumCodes(const char* key, size_t len)
 {
-    assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
-    assert((len != 0)       && "Len is invalid!!!\n");
-
     uint32_t control_sum = 0;
 
     for (int i = 0; i < len; i++)
@@ -154,16 +151,20 @@ uint32_t HashReturnSumCodes(const char* key, size_t len)
 }
 ```
 
-Рассмотрим, распределение данной хеш-функции на маленьком датасете. Датасет состоит из 1550 уникальных cлов. Размер хеш-таблицы выберем, равный $193$, так как $193$ - самое отдаленное простое число от степеней двоек и *load factor* $\approx 8$.
+Рассмотрим, распределение данной хеш-функции на маленьком размере, который равен $193$. 
 
+График:
 ![](Images/sum_codes_hash_193.png)
 
+Как видно из графика, средний размер списка $\approx 63,51$ и среднее квадратичное отклонение $\approx 8,62$. Относительное отклонение $\approx 13.6$%. Это неплохой результат относительно предыдущих, проверим теперь данную хеш-функции при размере $1531$.
+
+График:
 ![](Images/sum_codes_hash_1531.png)
 
 Диаграмма при размере хеш-таблицы = 1531 и полном датасете из 142049 слов.
 Среднее квадратичное отклонение $\sigma = 10.10$. 
 
-Данная хеш-функция имеет не лучшее распределение. Так как английские слова имеют определенную зависимость последовательности символов в слове, то из-за этого какие-то суммы кодов встречаются часто, а другие нет, из-за этого на графике видны подобные возвышенности.
+Результаты хуже, чем при размере $193$. Значит, данная хеш-функция обладает плохим распределением. Распределение вышло таким из-за того, что английские слова имеют определенную зависимость последовательности символов в слове, то из-за этого какие-то суммы кодов встречаются часто, а другие нет, из-за этого на графике видны подобные возвышенности.
 
 Так же данная хеш-функция имеет ограничение на диапазон возможных значений. 
 Так как в английском слове длина слова не превышает 45 букв, то максимально возможное значение = 45 * 'z' = 45 * 122 = 5490. То есть при количестве оригинальных слов > 5490, то по индексам от 5491 и т.д. будут пустые списки.
@@ -184,9 +185,6 @@ inline static uint32_t RORCalculate(uint32_t hash)
 
 uint32_t HashRorFunction(const char* key, size_t len)
 {
-    assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
-    assert((len != 0)       && "Len is invalid!!!\n");
-
     uint32_t hash   = 0;
 
     for (int i = 0; i < len; i++)
@@ -199,7 +197,7 @@ uint32_t HashRorFunction(const char* key, size_t len)
     return hash;
 }
 ```
-
+График:
 ![](Images/ror_calc_hash.png)
 
 Среднее квадратичное отклонение $\sigma = 5.85$.
@@ -223,8 +221,6 @@ ror eax
 ```
 Однако, при -O1 программа упрощается и не вызывает функцию для подсчёта ror отдельно, в отличие от -O0. При -O2 и -O3 не происходит ничего интересного, так же стоит отметить, что при флаге -O0 и версии компилятора gcc < 7, компилятор не заменяет на ror.
 
-![](Images/old_godbolt.png)
-
 ### Хеш-функция возвращает RolHash.
 
 Алгоритм вычисления вычисления функции:
@@ -241,9 +237,6 @@ inline static uint32_t ROLCalculate(uint32_t hash)
 
 uint32_t HashRolFunction(const char* key, size_t len)
 {
-    assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
-    assert((len != 0)       && "Len is invalid!!!\n");
-
     uint32_t hash   = 0;
 
     for (int i = 0; i < len; i++)
@@ -257,6 +250,7 @@ uint32_t HashRolFunction(const char* key, size_t len)
 }
 ```
 
+График:
 ![](Images/rol_calc_hash.png)
 
 Среднее квадратичное отклонение $\sigma = 3.46$.
@@ -270,9 +264,6 @@ uint32_t HashRolFunction(const char* key, size_t len)
 ``` C
 uint32_t HashCrc32(const char* key, size_t len)
 {
-    assert((key != nullptr) && "Pointer to \'key\' is NULL!!!\n");
-    assert((len != 0)       && "Len is invalid!!!\n");
-
     uint_least32_t crc = 0xFFFFFFFF;
     while (len--)
         crc = (crc >> 8) ^ Crc32Table[(crc ^ *key++) & 0xFF];
@@ -282,26 +273,28 @@ uint32_t HashCrc32(const char* key, size_t len)
 }
 ```
 
+График:
 ![](Images/crc32_hash.png)
 
 Среднее квадратичное отклонение $\sigma = 2.92$.
 
 ## Результаты
 
-| Хеш-функция               | Среднее квадратичное отклонение |
-|:-------------------------:|:-------------------------------:|
-| CRC32                     | 2.92                            |
-| RolHash                   | 3.46                            |
-| RorHash                   | 5.85                            |
-| Sum of codes(size = 1531) | 10.10                           |
-| First code                | 68.24                           |
-| Strlen                    | 104.68                          |
-| ConstHash                 | 313.28                          |
+| Хеш-функция               |  Среднее квадратичное отклонение  |
+|:-------------------------:|:---------------------------------:|
+| CRC32                     | 2.92                              |
+| RolHash                   | 3.46                              |
+| RorHash                   | 5.85                              |
+| Sum of codes(size = 193)  | 8.62                              |
+| Sum of codes(size = 1531) | 10.10                             |
+| First code                | 68.24                             |
+| Strlen                    | 104.68                            |
+| ConstHash                 | 313.28                            |
 
 ## Анализ результатов
 Из таблицы видно, что лучшим распределением обладает хеш-функция **CRC32**. В дальнейшем, будем оптимизировать хеш-таблицу с использованием CRC32.
 
-Неплохим распределением обладает RolHash. 
+Хорошим распределением обладает RolHash. Стоит отметить, что и SumCodes при маленьком объеме данных обладает неплохим распределением.
 
 # Оптимизации хеш-таблицы
 
@@ -364,6 +357,9 @@ for (i = 0; i < 3000; i++)
 
 Заметим, что длина слов не превышает 31 символа. Значит, наши слова вмещаются в YMM-регистр. Воспользуемся этим и напишем свою `strcmp`:
 
+<details>
+<summary>my_strcmp</summary>
+
 ``` C
 int my_strcmp(const char* string1, size_t len1, const char* string2, size_t len2)
 {
@@ -382,6 +378,9 @@ int my_strcmp(const char* string1, size_t len1, const char* string2, size_t len2
     return (mask == (unsigned int)-1);                          //Возвращаем результат сравнений
 }
 ```
+
+</details>
+<br>
 
 Таблица измерений:
 
@@ -410,6 +409,9 @@ int my_strcmp(const char* string1, size_t len1, const char* string2, size_t len2
 
 Видно, что теперь нужно оптимизировать функцию подсчёта хеша CRC32. Оказывается в ассемблере есть уже команда crc32. Воспользуемся встроенным ассемблером для написания функции хеширования:
 
+<details>
+<summary>HashFastCrc32</summary>
+
 ``` C
 uint32_t HashFastCrc32(const char* key, size_t len)
 {
@@ -417,19 +419,19 @@ uint32_t HashFastCrc32(const char* key, size_t len)
 
     asm (
         ".intel_syntax noprefix\n\t"
-        "movzx  edx, BYTE PTR [%1]\n\t"
-        "test    dl, dl\n\t"
-        "je      .end_of_cycle\n\t"
-        "add     %1, 1\n\t"
+        "movzx  edx, BYTE PTR [%1]\n\t"         //Загружаем символ в регистр edx
+        "test    dl, dl\n\t"                    //Проверка на равенство символа с '\0'
+        "je      .end_of_cycle\n\t"             //Если равен, то выходим из цикла
+        "add     %1, 1\n\t"                     //Иначе key += 1 и crc = (uint32_t)-1
         "mov     %0, -1\n\t"
         ".next_char:\n\t"
         "add     %1, 1\n\t"
-        "crc32   %0, dl\n\t"
-        "movzx   edx, BYTE PTR [%1-1]\n\t"
-        "test    dl, dl\n\t"
+        "crc32   %0, dl\n\t"                    //Операция хеширования CRC32
+        "movzx   edx, BYTE PTR [%1-1]\n\t"      //<-+ Смотрим на следующий символ и проверяем его на равенство с '\0'
+        "test    dl, dl\n\t"                    //</
         "jne     .next_char\n\t"
         ".end_of_cycle:\n\t"
-        "not     %0\n\t"
+        "not     %0\n\t"                        //crc = crc ^ 0xFFFFFFFF
         ".att_syntax\n\t"
         : "=r"(crc)
         : "r"(key)
@@ -439,7 +441,8 @@ uint32_t HashFastCrc32(const char* key, size_t len)
     return crc;
 }
 ```
-
+</details>
+<br>
 
 Таблица измерений:
 
@@ -461,7 +464,66 @@ uint32_t HashFastCrc32(const char* key, size_t len)
 | Ускорение strcmp          |   $(43,8 \pm 0,7) * 10^9$     |   1,97                                        |   1,32                                        |
 | Ускорение strcmp и CRC32  |   $(40,5 \pm 0,8) * 10^9$     |   2,13                                        |   1,08                                        |
 
+Как видно, оптимизация с помощью ассемблерной вставки дала прирост лишь в 8%, что очень мало. Я решил попробовать оптимизирова данную хеш-функцию дополнительно с помощью написания функции полностью на ассемблере.
 
+<details>
+<summary>Новый код функции:</summary>
+
+```
+global FastHashCRC32
+
+section .text
+
+;===============================================
+;Fast assembler implementation of HashCRC32
+;Entry: RDI =   address of string 'key'
+;       RSI =   len of string 'key'
+;Exit:  EAX =   value of hash
+;Dstr:  No 
+;===============================================
+FastHashCRC32:
+        mov eax, -1
+        movzx  edx, BYTE [rdi]
+        test    dl, dl
+        je      .end_of_cycle
+        add     rdi, 1
+        mov     eax, -1
+    .next_char:
+        add     rdi, 1
+        crc32   eax, dl
+        movzx   edx, BYTE [rdi-1]
+        test    dl, dl
+        jne     .next_char
+    .end_of_cycle:
+        not     eax
+        ret
+;===============================================
+```
+
+</details>
+<br>
+
+Таблица измерений:
+
+| Номер замера  | Время в тактах|
+|:-------------:|:-------------:|
+|   $1$         | $39571170912$ |
+|   $2$         | $39334500384$ |
+|   $3$         | $39410828960$ |
+|   $4$         | $39345997440$ |
+|   $5$         | $39667995744$ |
+
+
+Таблица сравнений с другими реализациями:
+
+|                           | Среднее время работы в тактах | Ускорение относительно наивной реализации     | Ускорение относительно предыдущей реализации  |
+|:-------------------------:|:-----------------------------:|:---------------------------------------------:|:---------------------------------------------:|
+| Наивная реализация        |   $(86,4 \pm 1,5) * 10^9$     |   1                                           |   1                                           |
+| Реализация с O3           |   $(57,9 \pm 0,8) * 10^9$     |   1,49                                        |   1,49                                       |  
+| Ускорение strcmp          |   $(43,8 \pm 0,7) * 10^9$     |   1,97                                        |   1,32                                        |
+| Ускорение strcmp и CRC32  |   $(39,5 \pm 0,2) * 10^9$     |   2,19                                        |   1,11                                        |
+
+Действительно, программа, написанная на ассемблере отдельно, работает быстрее, чем написанная с помощью ассемблерной вставки. Попробуем применить дополнительно оптимизацию к другой функции с помощью переписывания на ассемблер. 
 
 ## Третья оптимизация с помощью функции, написанной ассемблера
 
@@ -471,7 +533,8 @@ uint32_t HashFastCrc32(const char* key, size_t len)
 
 Видно, что в оптимизации нуждается функция поиска в хеш-таблице. Так как мы уже используем оптимизации в виде strcmp и CRC32, а так же наш код потерял читаемость, то решено было использовать эти 3 факта и написать продвинутую функцию поиска в хеш-таблице!
 
-Было:
+<details>
+<summary>Было:</summary>
 
 ``` C
 int HashTableSearch(const HashTable* const hash_table, const char* key, size_t len, error_t* error)
@@ -496,10 +559,106 @@ int HashTableSearch(const HashTable* const hash_table, const char* key, size_t l
 }
 ```
 
-Стало:
-```
+</details>
+<br>
+
+<details>
+<summary>Стало:</summary>
 
 ```
+global FastHashTableSearch
+
+section .text
+
+;===============================================
+;Fast assembler implementation of HashTableSearch
+;Entry: RDI =   address of hash table
+;       RSI =   address of string 'key'
+;       RDX =   len of string 'key'
+;Exit:  RAX =   1, if elem is in hash table, else 0
+;Dstr:  No 
+;===============================================
+FastHashTableSearch:
+;v~~~~~~~~~~Save values of registers~~~~~~~~~v
+                push rbx
+                push rcx
+                push r8
+;^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+
+;v~~~~~~~~~Prepare data for calculate~~~~~~~~~~v
+                mov r8,  rsi                    ; R8  = address of string key
+                mov rcx, rdx                    ; RCX = len of cycle
+                mov rbx, rdx                    ; RBX = len of cycle
+                mov eax, 0xFFFFFFFF             ; EAX = (uint32_t)-1
+                cld
+;^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+
+;v~~~~~~~~~~~Calculate FastHashCrc32~~~~~~~~~~~v
+        .FastHashCrc32:                         ;<---- Begin of cycle
+                mov dl, BYTE [rsi]
+                test dl, dl
+                je .StopHash
+                crc32 eax, dl
+                inc rsi
+                loop .FastHashCrc32             ;----> End of cycle
+;^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+
+        .StopHash:
+
+                xor     edx, edx
+                div     qword [rdi+8]           ; EDX = index of list in array
+
+                lea     rax, [rdx+rdx*2]        ;<\
+                sal     rax, 4                  ;<-+ RAX = address of list in which the word will be searched
+                add     rax, qword [rdi]        ;</
+
+;v~~~~~~~~~~~Search in List the key~~~~~~~~~~~~v
+                vmovdqu      ymm0, [r8]         ; Load key to YMM0
+
+                mov     rsi, QWORD [rax+32]     ; RSI = size of list
+                test    rsi, rsi                ; 
+                je      .IndexIsNotFound        ; if (RSI == 0) go to .IndexIsNotFound
+
+                mov     rdx, QWORD [rax]
+                xor     eax, eax
+
+        .BeginOfCycle:                          ;<---- Begin of search cycle
+                cmp     rbx, QWORD [rdx+32]
+                jne     .GoToNextNode           ; if (RBX != list->data[i].size) i = list->next[i]
+
+                vmovdqu      ymm1, [rdx]        ; Load the list->data[i].key to YMM1
+                vpcmpeqb     ymm1, ymm1, ymm0   ; Compare YMM1 and YMM0
+                vpmovmskb    edi, ymm1          ; EDI = mask(YMM1)
+
+                cmp     edi, -1
+                je      .EndOfFunction          ; if (key == list->data[i].key) return eax
+        .GoToNextNode:
+                add     rax, 1                  ;<-+ i = list->next[i]
+                add     rdx, 40                 ;</
+
+                cmp     rsi, rax                ; if (RSI != RAX) go to next node in list
+                jne     .BeginOfCycle           ;----> End of search cycle
+
+        .IndexIsNotFound:
+                mov     eax, -666               ; EAX = LIST_INVALID_INDEX
+
+;^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+
+;v~~~~~~~~Return old values of registers~~~~~~~v
+        .EndOfFunction:        
+                pop r8
+                pop rcx
+                pop rbx
+;^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+
+                vzeroupper
+                ret
+
+;===============================================
+```
+
+</details>
+<br>
 
 Таблица измерений:
 

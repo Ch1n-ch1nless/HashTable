@@ -36,6 +36,9 @@ HashTableErrors HashTableCtor(HashTable* const hash_table, uint32_t (*HashCalcul
 HashTableErrors HashTableDtor(HashTable* const hash_table);
 
 int             HashTableInsert(HashTable* const hash_table, const char* key, size_t len, error_t* error);
+
+extern "C" int  FastHashTableSearch(const HashTable* const hash_table, const char* key, size_t len);
+
 int             HashTableSearch(const HashTable* const hash_table, const char* key, size_t len, error_t* error);
 
 error_t         HashTableVerify(HashTable* const hash_table);

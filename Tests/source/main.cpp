@@ -9,7 +9,6 @@ int main(int argc, char* argv[])
     {
         case TEST_HASH_FUNC:
         {
-            printf("%s\n", config.file);
             TestHashFunction(config.hash_func, config.file);
             break;
         }

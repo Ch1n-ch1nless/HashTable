@@ -4,10 +4,10 @@ TestConfig ArgsParse(int argc, char* argv[])
 {
     TestConfig config = {TEST_NO, nullptr, nullptr};
 
-    uint32_t (*hash_functions[8])(const char *, size_t) =
+    uint32_t (*hash_functions[])(const char *, size_t) =
     {
-        HashReturnConst, HashReturnFirstASCIICode, HashReturnStrlen, HashReturnSumCodes, HashRorFunction, HashRolFunction, HashFastCrc32, HashCrc32
-    };  
+        HashReturnConst, HashReturnFirstASCIICode, HashReturnStrlen, HashReturnSumCodes, HashRorFunction, HashRolFunction, HashFastCrc32, HashCrc32, FastHashCRC32
+    };
 
     for (int i = 0; i < argc; i++)
     {
@@ -23,7 +23,7 @@ TestConfig ArgsParse(int argc, char* argv[])
         {
             i++;
             int index = *(argv[i]) - '0';
-            if (index < 0 || index > 7)
+            if (index < 0 || index > 8)
             {
                 printf("ERROR in argument parser!\n");
                 break;

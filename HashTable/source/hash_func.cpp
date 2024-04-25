@@ -120,6 +120,6 @@ uint32_t HashFastCrc32(const char* key, size_t len)
         : "edx"
     );
 
-    return crc ^ 0xFFFFFFFF;
+    return crc;
 }
 
