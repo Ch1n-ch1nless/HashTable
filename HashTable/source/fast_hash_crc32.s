@@ -11,18 +11,10 @@ section .text
 ;===============================================
 FastHashCRC32:
         mov eax, -1
-        movzx  edx, BYTE [rdi]
-        test    dl, dl
-        je      .end_of_cycle
-        add     rdi, 1
-        mov     eax, -1
-    .next_char:
-        add     rdi, 1
-        crc32   eax, dl
-        movzx   edx, BYTE [rdi-1]
-        test    dl, dl
-        jne     .next_char
-    .end_of_cycle:
+        crc32 rax, QWORD [rdi]
+        crc32 rax, QWORD [rdi+8]
+        crc32 rax, QWORD [rdi+16]
+        crc32 rax, QWORD [rdi+24]
         not     eax
         ret
 ;===============================================

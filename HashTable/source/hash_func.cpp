@@ -101,19 +101,19 @@ uint32_t HashFastCrc32(const char* key, size_t len)
 
     asm (
         ".intel_syntax noprefix\n\t"
-        "movzx  edx, BYTE PTR [%1]\n\t"
-        "test    dl, dl\n\t"
-        "je      .end_of_cycle\n\t"
-        "add     %1, 1\n\t"
+        "movzx  edx, BYTE PTR [%1]\n\t"         //Загружаем символ в регистр edx
+        "test    dl, dl\n\t"                    //Проверка на равенство символа с '\0'
+        "je      .end_of_cycle\n\t"             //Если равен, то выходим из цикла
+        "add     %1, 1\n\t"                     //Иначе key += 1 и crc = (uint32_t)-1
         "mov     %0, -1\n\t"
         ".next_char:\n\t"
         "add     %1, 1\n\t"
-        "crc32   %0, dl\n\t"
-        "movzx   edx, BYTE PTR [%1-1]\n\t"
-        "test    dl, dl\n\t"
+        "crc32   %0, dl\n\t"                    //Операция хеширования CRC32
+        "movzx   edx, BYTE PTR [%1-1]\n\t"      //<-+ Смотрим на следующий символ и проверяем его на равенство с '\0'
+        "test    dl, dl\n\t"                    //</
         "jne     .next_char\n\t"
         ".end_of_cycle:\n\t"
-        "not     %0\n\t"
+        "not     %0\n\t"                        //crc = crc ^ 0xFFFFFFFF
         ".att_syntax\n\t"
         : "=r"(crc)
         : "r"(key)

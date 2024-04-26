@@ -12,7 +12,6 @@ section .text
 ;===============================================
 FastHashTableSearch:
 ;v~~~~~~~~~~Save values of registers~~~~~~~~~v
-                push rbx
                 push rcx
                 push r8
 ;^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
@@ -20,19 +19,17 @@ FastHashTableSearch:
 ;v~~~~~~~~~Prepare data for calculate~~~~~~~~~~v
                 mov r8,  rsi                    ; R8  = address of string key
                 mov rcx, rdx                    ; RCX = len of cycle
-                mov rbx, rdx                    ; RBX = len of cycle
                 mov eax, 0xFFFFFFFF             ; EAX = (uint32_t)-1
                 cld
 ;^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
 
 ;v~~~~~~~~~~~Calculate FastHashCrc32~~~~~~~~~~~v
-        .FastHashCrc32:                         ;<---- Begin of cycle
-                mov dl, BYTE [rsi]
-                test dl, dl
-                je .StopHash
-                crc32 eax, dl
-                inc rsi
-                loop .FastHashCrc32             ;----> End of cycle
+                mov eax, -1
+                crc32 rax, QWORD [rdi]
+                crc32 rax, QWORD [rdi+8]
+                crc32 rax, QWORD [rdi+16]
+                crc32 rax, QWORD [rdi+24]
+                not     eax
 ;^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
 
         .StopHash:
@@ -55,7 +52,7 @@ FastHashTableSearch:
                 xor     eax, eax
 
         .BeginOfCycle:                          ;<---- Begin of search cycle
-                cmp     rbx, QWORD [rdx+32]
+                cmp     rcx, QWORD [rdx+32]
                 jne     .GoToNextNode           ; if (RBX != list->data[i].size) i = list->next[i]
 
                 vmovdqu      ymm1, [rdx]        ; Load the list->data[i].key to YMM1
@@ -80,7 +77,6 @@ FastHashTableSearch:
         .EndOfFunction:        
                 pop r8
                 pop rcx
-                pop rbx
 ;^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
 
                 vzeroupper

@@ -9,20 +9,20 @@ TestConfig ArgsParse(int argc, char* argv[])
         HashReturnConst, HashReturnFirstASCIICode, HashReturnStrlen, HashReturnSumCodes, HashRorFunction, HashRolFunction, HashFastCrc32, HashCrc32, FastHashCRC32
     };
 
-    for (int i = 0; i < argc; i++)
+    for (int arg_id= 0; arg_id< argc; arg_id++)
     {
-        if (!strcmp(argv[i], FLAG_TEST_HASH_FUNCTIONS))
+        if (!strcmp(argv[arg_id], FLAG_TEST_HASH_FUNCTIONS))
         {   
             config.test_mode = TEST_HASH_FUNC;
         }
-        else if (!strcmp(argv[i], FLAG_TEST_HASH_SEARCH))
+        else if (!strcmp(argv[arg_id], FLAG_TEST_HASH_SEARCH))
         {
             config.test_mode = TEST_HASH_SEARCH;
         }
-        else if (!strcmp(argv[i], FLAG_HASH))
+        else if (!strcmp(argv[arg_id], FLAG_HASH))
         {
-            i++;
-            int index = *(argv[i]) - '0';
+            arg_id++;
+            int index = *(argv[arg_id]) - '0';
             if (index < 0 || index > 8)
             {
                 printf("ERROR in argument parser!\n");
@@ -31,10 +31,10 @@ TestConfig ArgsParse(int argc, char* argv[])
         
             config.hash_func = hash_functions[index];
         }
-        else if (!strcmp(argv[i], FLAG_FILE))
+        else if (!strcmp(argv[arg_id], FLAG_FILE))
         {
-            i++;
-            config.file = argv[i];
+            arg_id++;
+            config.file = argv[arg_id];
         }
     }
 

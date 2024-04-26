@@ -21,7 +21,7 @@ enum TextErrors
 };
 
 const char* const MARTIN_EDEN_FILE  = "Data/MartinEden.txt";
-const char* const CLEAN_FILE        = "Data/CleanFile.txt";
+const char* const CLEAN_FILE        = "Data/CleanFile.bin";
 
 /*===================STRUCTS==================*/
 
